@@ -5,6 +5,7 @@ export default Joi.object({
     .valid('development', 'test', 'local-server')
     .default('local-server'),
   ENV_MODE: Joi.string().required(),
+  PORT: Joi.number().valid(5001, 3000).default(3000),
   DB_TYPE: Joi.string().required(),
   DB_PORT: Joi.number().port().default(5432),
   DB_HOST: Joi.string().required(),
