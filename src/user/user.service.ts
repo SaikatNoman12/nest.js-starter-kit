@@ -1,16 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserAlreadyExistException } from 'src/errors/user-already-exist.exception';
+import { PaginationProvider } from 'src/common/pagination/pagination.provider';
+import { PaginatedInterface } from 'src/common/pagination/paginated';
+import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    private readonly paginationProvider: PaginationProvider<User>,
   ) {}
+
+  public async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedInterface<User>> {
+    try {
+      const response = this.paginationProvider.paginateQuery(
+        paginationDto,
+        this.userRepository,
+      );
+
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new RequestTimeoutException(
+          'An error occurred. Please try again.',
+          {
+            description: `Couldn't connect to the database! Error: ${error.message}`,
+          },
+        );
+      } else {
+        throw new RequestTimeoutException(
+          'An unknown error occurred. Please try again.',
+          {
+            description: "Couldn't connect to the database!",
+          },
+        );
+      }
+    }
+  }
 
   public async create(userDto: CreateUserDto) {
     const user = await this.userRepository.findOne({
