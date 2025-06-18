@@ -5,7 +5,10 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserAlreadyExistException } from 'src/errors/user-already-exist.exception';
 import { PaginationProvider } from 'src/common/pagination/pagination.provider';
-import { PaginatedInterface } from 'src/common/pagination/paginated';
+import {
+  PaginatedDetailsInterface,
+  PaginatedInterface,
+} from 'src/common/pagination/paginated';
 import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
 
 @Injectable()
@@ -23,6 +26,7 @@ export class UserService {
     try {
       const response = this.paginationProvider.paginateQuery(
         paginationDto,
+        'user',
         this.userRepository,
       );
 
@@ -46,6 +50,18 @@ export class UserService {
     }
   }
 
+  public async findUser(
+    email: string,
+  ): Promise<PaginatedDetailsInterface<User>> {
+    const response = this.paginationProvider.paginateDetailsQuery(
+      'user',
+      this.userRepository,
+      { email },
+    );
+
+    return response;
+  }
+
   public async create(userDto: CreateUserDto) {
     const user = await this.userRepository.findOne({
       where: { email: userDto.email },
@@ -61,6 +77,7 @@ export class UserService {
 
     return {
       success: true,
+      message: 'User created successfully!',
       data: newUser,
     };
   }

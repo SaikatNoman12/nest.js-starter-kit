@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 import envValidator from './config/env.validation';
@@ -14,6 +15,7 @@ const ENV = process.env.NODE_ENV;
 @Module({
   imports: [
     UserModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: !ENV ? '.env' : `.env.${ENV}`,

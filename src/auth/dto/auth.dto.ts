@@ -1,15 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateUserDto {
-  @IsString()
+export class AuthDto {
   @IsNotEmpty()
-  name: string;
-
   @IsString()
-  @IsNotEmpty()
   email: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   password: string;
 }
