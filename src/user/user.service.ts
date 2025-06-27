@@ -1,4 +1,9 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -10,6 +15,7 @@ import {
   PaginatedInterface,
 } from 'src/common/pagination/paginated';
 import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
+import { HashingProvider } from 'src/auth/provider/hashing.provider';
 
 @Injectable()
 export class UserService {
@@ -18,6 +24,9 @@ export class UserService {
     private readonly userRepository: Repository<User>,
 
     private readonly paginationProvider: PaginationProvider<User>,
+
+    @Inject(forwardRef(() => HashingProvider))
+    private readonly hashProvider: HashingProvider,
   ) {}
 
   public async findAll(
@@ -71,7 +80,10 @@ export class UserService {
       throw new UserAlreadyExistException('this email', user.email);
     }
 
-    let newUser = this.userRepository.create(userDto);
+    let newUser = this.userRepository.create({
+      ...userDto,
+      password: await this.hashProvider.hashPassword(userDto.password),
+    });
 
     newUser = await this.userRepository.save(newUser);
 

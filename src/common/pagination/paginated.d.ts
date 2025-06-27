@@ -19,8 +19,8 @@ export interface PaginatedInterface<T> {
 }
 
 export interface PaginatedDetailsInterface<T> {
-  data: T | null;
-  success: boolean;
-  message: string;
-  status: number;
+  data?: T | null;
+  success?: boolean;
+  message?: string;
+  status?: number;
 }
