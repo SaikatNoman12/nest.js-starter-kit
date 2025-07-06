@@ -1,0 +1,42 @@
+import {
+  BadGatewayException,
+  CallHandler,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { catchError, map, Observable, throwError } from 'rxjs';
+import authConfig from 'src/modules/auth/config/auth.config';
+import { LoginResponseDto } from 'src/modules/auth/dto/login-response.dto';
+
+@Injectable()
+export class SetToken implements NestInterceptor {
+  constructor(
+    @Inject(authConfig.KEY)
+    private readonly authConfiguration: ConfigType<typeof authConfig>,
+  ) {}
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const res = context.switchToHttp().getResponse();
+    return next.handle().pipe(
+      map((value) => {
+        if (value.success) {
+          res.cookie(this.authConfiguration.authTokenCookieName, value.access, {
+            httpOnly: true,
+          });
+          return {
+            success: true,
+            message: value.message,
+            refreshToken: value?.refreshToken,
+          } as LoginResponseDto;
+        } else {
+          return value;
+        }
+      }),
+      //  error in parameter
+      catchError(() => throwError(() => new BadGatewayException())),
+    );
+  }
+}

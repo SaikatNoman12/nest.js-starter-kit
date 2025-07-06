@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 import envValidator from './config/env.validation';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthorizeGuard } from './auth/guards/authorize.guard';
-import authConfig from './auth/config/auth.config';
+import { AuthorizeGuard } from './modules/auth/guards/authorize.guard';
+import authConfig from './modules/auth/config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
 
 // dynamic env

@@ -4,13 +4,13 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/modules/user/user.service';
 import { AuthDto } from './dto/auth.dto';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import authConfig from './config/auth.config';
 import { ConfigType } from '@nestjs/config';
-import { User } from 'src/user/user.entity';
+import { User } from 'src/modules/user/user.entity';
 import { ActiveUserType } from 'src/interfaces/active-user-type.interface';
 import { HashingProvider } from './provider/hashing.provider';
 
@@ -47,6 +47,8 @@ export class AuthService {
 
     return {
       ...allTokens,
+      success: true,
+      status: 200,
       message: 'User logged in successfully.',
     };
   }

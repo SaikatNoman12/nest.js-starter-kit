@@ -15,7 +15,8 @@ import {
   PaginatedInterface,
 } from 'src/common/pagination/paginated';
 import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
-import { HashingProvider } from 'src/auth/provider/hashing.provider';
+import { HashingProvider } from 'src/modules/auth/provider/hashing.provider';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UserService {
@@ -31,9 +32,9 @@ export class UserService {
 
   public async findAll(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedInterface<User>> {
+  ): Promise<PaginatedInterface<GetUserDto>> {
     try {
-      const response = this.paginationProvider.paginateQuery(
+      const response = await this.paginationProvider.paginateQuery(
         paginationDto,
         'user',
         this.userRepository,

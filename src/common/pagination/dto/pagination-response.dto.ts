@@ -61,7 +61,6 @@ export class PaginationLinksDto {
 export class PaginatedResponseDto<T> {
   @ApiProperty({
     description: 'Array of paginated data',
-    example: [],
   })
   data: T[];
 
