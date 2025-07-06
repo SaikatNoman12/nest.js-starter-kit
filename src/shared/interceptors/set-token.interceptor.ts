@@ -29,7 +29,8 @@ export class SetToken implements NestInterceptor {
           return {
             success: true,
             message: value.message,
-            refreshToken: value?.refreshToken,
+            status: value.status,
+            refresh: value?.refresh,
           } as LoginResponseDto;
         } else {
           return value;
