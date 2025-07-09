@@ -17,6 +17,7 @@ import {
 import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
 import { HashingProvider } from 'src/modules/auth/provider/hashing.provider';
 import { GetUserDto } from './dto/get-user.dto';
+import { DynamicKeyInterFace } from 'src/interfaces/reuse';
 
 @Injectable()
 export class UserService {
@@ -61,12 +62,12 @@ export class UserService {
   }
 
   public async findUser(
-    email: string,
+    keyValue: DynamicKeyInterFace,
   ): Promise<PaginatedDetailsInterface<User>> {
     const response = this.paginationProvider.paginateDetailsQuery(
       'user',
       this.userRepository,
-      { email },
+      { ...keyValue },
     );
 
     return response;

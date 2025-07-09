@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthorizeGuard } from './modules/auth/guards/authorize.guard';
 import authConfig from './modules/auth/config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
+import { CorsMiddleware } from './shared/middleware/cors.middleware';
 
 // dynamic env
 const ENV = process.env.NODE_ENV;
@@ -52,4 +53,8 @@ const ENV = process.env.NODE_ENV;
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CorsMiddleware).forRoutes('*');
+  }
+}

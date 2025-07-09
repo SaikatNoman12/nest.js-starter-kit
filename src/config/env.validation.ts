@@ -21,4 +21,5 @@ export default Joi.object({
   REFRESH_TOKEN_EXPIRES_IN: Joi.number().required(),
   JWT_TOKEN_AUDIENCE: Joi.string().required(),
   JWT_TOKEN_ISSUER: Joi.string().required(),
+  ALLOW_ORIGINS: Joi.string().required(),
 });

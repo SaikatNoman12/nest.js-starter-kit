@@ -13,6 +13,7 @@ import { ConfigType } from '@nestjs/config';
 import { User } from 'src/modules/user/user.entity';
 import { ActiveUserType } from 'src/interfaces/active-user-type.interface';
 import { HashingProvider } from './provider/hashing.provider';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,8 @@ export class AuthService {
   ) {}
 
   public async login(loginDto: AuthDto) {
-    const user = (await this.userService.findUser(loginDto.email)).data;
+    const user = (await this.userService.findUser({ email: loginDto.email }))
+      .data;
 
     if (!user?.password) {
       throw new UnauthorizedException('User does not have a password set.');
@@ -53,6 +55,46 @@ export class AuthService {
     };
   }
 
+  public async refreshToken(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const payload = await this.jwtService.verifyAsync<{ sub: number }>(
+        refreshTokenDto.refresh,
+        {
+          secret: this.authConfiguration.secret,
+          audience: this.authConfiguration.audience,
+          issuer: this.authConfiguration.issuer,
+        },
+      );
+
+      const userId = payload.sub;
+
+      if (!userId) {
+        throw new UnauthorizedException('Invalid refresh token dto!');
+      }
+
+      const user = (await this.userService.findUser({ id: userId })).data;
+
+      if (!user) {
+        throw new UnauthorizedException('User not found.');
+      }
+
+      const allTokens = await this.getToken(user, false);
+
+      return {
+        ...allTokens,
+        refresh: refreshTokenDto.refresh,
+        success: true,
+        status: 200,
+        message: 'User access token refresh successfully.',
+      };
+    } catch (error) {
+      throw new UnauthorizedException(
+        error,
+        'Invalid or expired refresh token.',
+      );
+    }
+  }
+
   public async signToken<T>(userId: number, expiresIn: number, payload?: T) {
     return await this.jwtService.signAsync(
       {
@@ -68,7 +110,7 @@ export class AuthService {
     );
   }
 
-  public async getToken(user: User) {
+  public async getToken(user: User, isRefreshToken: boolean = true) {
     const accessPayload: Partial<ActiveUserType> = {
       email: user.email,
     };
@@ -79,19 +121,18 @@ export class AuthService {
       accessPayload,
     );
 
-    const refreshTokenPromise = this.signToken(
-      user.id,
-      this.authConfiguration.refreshTokenExpiresIn,
-    );
+    const refreshTokenPromise =
+      isRefreshToken &&
+      this.signToken(user.id, this.authConfiguration.refreshTokenExpiresIn);
 
     const [access, refresh] = await Promise.all([
       accessTokenPromise,
-      refreshTokenPromise,
+      isRefreshToken ? refreshTokenPromise : Promise.resolve(null),
     ]);
 
     return {
       access,
-      refresh,
+      ...(isRefreshToken && { refresh }),
     };
   }
 
