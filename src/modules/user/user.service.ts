@@ -153,10 +153,11 @@ export class UserService {
       await this.userRepository.save(user);
 
       const response = await this.paginationProvider.paginateDetailsQuery({
-        message: 'user',
+        message: 'User updated',
         repository: this.userRepository,
         where: { id },
         select: ['id', 'name', 'email'],
+        isCreate: true,
       });
 
       return response;
