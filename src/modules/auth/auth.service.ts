@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from 'src/modules/user/user.service';
@@ -29,30 +30,57 @@ export class AuthService {
   ) {}
 
   public async login(loginDto: AuthDto) {
-    const user = (await this.userService.findUser({ email: loginDto.email }))
-      .data;
+    try {
+      const user = (
+        await this.userService.findUser({ email: loginDto.email }, true)
+      ).data;
 
-    if (!user?.password) {
-      throw new UnauthorizedException('User does not have a password set.');
+      if (!user) {
+        return {
+          success: false,
+          message: 'Email is not valid!',
+          status: 400,
+        };
+      }
+
+      const isValidPassword = await this.hashProvider.comparePassword(
+        loginDto.password,
+        user?.password,
+      );
+
+      if (!isValidPassword) {
+        return {
+          success: false,
+          message: 'Password is not matched!',
+          status: 400,
+        };
+      }
+
+      const allTokens = await this.getToken(user);
+
+      return {
+        ...allTokens,
+        success: true,
+        status: 200,
+        message: 'User logged in successfully.',
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new RequestTimeoutException(
+          'An error occurred. Please try again.',
+          {
+            description: `Couldn't connect to the database! Error: ${error.message}`,
+          },
+        );
+      } else {
+        throw new RequestTimeoutException(
+          'An unknown error occurred. Please try again.',
+          {
+            description: "Couldn't connect to the database!",
+          },
+        );
+      }
     }
-
-    const isValidPassword = await this.hashProvider.comparePassword(
-      loginDto.password,
-      user?.password,
-    );
-
-    if (!isValidPassword) {
-      throw new UnauthorizedException('Incorrect Password!');
-    }
-
-    const allTokens = await this.getToken(user);
-
-    return {
-      ...allTokens,
-      success: true,
-      status: 200,
-      message: 'User logged in successfully.',
-    };
   }
 
   public async refreshToken(refreshTokenDto: RefreshTokenDto) {

@@ -15,13 +15,21 @@ import { Request } from 'express';
 export class PaginationProvider<T extends ObjectLiteral> {
   constructor(@Inject(REQUEST) private readonly request: Request) {}
 
-  public async paginateQuery(
-    paginationQueryDto: PaginationDto,
-    message: string = 'data',
-    repository: Repository<T>,
-    where?: FindOptionsWhere<T> | null,
-    relations?: string[],
-  ): Promise<PaginatedInterface<T>> {
+  public async paginateQuery({
+    paginationQueryDto,
+    message = 'data',
+    repository,
+    where,
+    relations,
+    select,
+  }: {
+    paginationQueryDto: PaginationDto;
+    message: string;
+    repository: Repository<T>;
+    where?: FindOptionsWhere<T> | null;
+    relations?: string[] | null;
+    select?: string[] | null;
+  }): Promise<PaginatedInterface<T>> {
     const findOptions: FindManyOptions<T> = {
       skip: (paginationQueryDto.page - 1) * paginationQueryDto.limit,
       take: paginationQueryDto.limit,
@@ -33,6 +41,10 @@ export class PaginationProvider<T extends ObjectLiteral> {
 
     if (relations) {
       findOptions.relations = relations;
+    }
+
+    if (select && select.length) {
+      findOptions.select = select;
     }
 
     const [allData, totalItems] = await Promise.all([
@@ -71,12 +83,21 @@ export class PaginationProvider<T extends ObjectLiteral> {
     return response;
   }
 
-  public async paginateDetailsQuery(
-    message: string = 'Data',
-    repository: Repository<T>,
-    where?: FindOptionsWhere<T> | null,
-    relations?: string[],
-  ): Promise<PaginatedDetailsInterface<T>> {
+  public async paginateDetailsQuery({
+    message = 'Data',
+    repository,
+    where,
+    relations,
+    select,
+    isCreate,
+  }: {
+    message: string;
+    repository: Repository<T>;
+    where?: FindOptionsWhere<T> | null;
+    relations?: string[] | null;
+    select?: string[] | null;
+    isCreate?: boolean;
+  }): Promise<PaginatedDetailsInterface<T>> {
     const findOptions: FindOneOptions<T> = {};
 
     if (where) {
@@ -85,6 +106,10 @@ export class PaginationProvider<T extends ObjectLiteral> {
 
     if (relations) {
       findOptions.relations = relations;
+    }
+
+    if (select && select?.length) {
+      findOptions.select = select;
     }
 
     const singleData = await repository.findOne(findOptions);
@@ -101,8 +126,8 @@ export class PaginationProvider<T extends ObjectLiteral> {
     const response: PaginatedDetailsInterface<T> = {
       data: singleData,
       success: true,
-      message: `This ${message.toLowerCase()} found successfully.`,
-      status: HttpStatus.FOUND,
+      message: `${isCreate ? `${message}` : 'This' + message.toLowerCase()} successfully.`,
+      status: HttpStatus.OK,
     };
 
     return response;

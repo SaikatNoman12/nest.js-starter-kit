@@ -31,6 +31,14 @@ export class User {
   })
   password: string;
 
+  @Column({
+    name: 'refresh',
+    nullable: true,
+    select: false,
+    type: 'text',
+  })
+  refresh: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

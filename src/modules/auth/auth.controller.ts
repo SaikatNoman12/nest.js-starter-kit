@@ -15,11 +15,11 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
-@AllowAnonymous()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @AllowAnonymous()
   @UseInterceptors(SetToken)
   @ApiResponseDto(LoginResponseDto, false)
   @HttpCode(HttpStatus.OK)
@@ -28,6 +28,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @AllowAnonymous()
   @UseInterceptors(SetToken)
   @ApiResponseDto(LoginResponseDto, false)
   @HttpCode(HttpStatus.OK)
