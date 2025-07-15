@@ -161,6 +161,30 @@ export class AuthService {
     }
   }
 
+  public async signUp(userDto: CreateUserDto) {
+    return this.userService.create(userDto);
+  }
+
+  public async logout(id: number) {
+    try {
+      if (id) await this.userService.updateRefresh(id, null);
+      return {
+        success: true,
+        message: `Successfully logout`,
+        status: 200,
+      };
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        if (error.driverError.errno == 1062) {
+          throw new QueryFailedError('Duplicate Key Error', [], error);
+        }
+        throw new QueryFailedError(error.message, [], error);
+      } else {
+        throw new InternalServerErrorException(error.message);
+      }
+    }
+  }
+
   public async signToken<T>(userId: number, expiresIn: number, payload?: T) {
     return await this.jwtService.signAsync(
       {
@@ -200,9 +224,5 @@ export class AuthService {
       access,
       ...(isRefreshToken && { refresh }),
     };
-  }
-
-  public async signUp(userDto: CreateUserDto) {
-    return this.userService.create(userDto);
   }
 }

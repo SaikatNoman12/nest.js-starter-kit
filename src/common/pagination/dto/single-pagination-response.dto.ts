@@ -4,7 +4,7 @@ export class SinglePaginatedResponseDto<T> {
   @ApiProperty({
     description: 'Object of data',
   })
-  data: T[];
+  data?: T[];
 
   @ApiProperty({
     description: 'Indicates if the request was successful',
