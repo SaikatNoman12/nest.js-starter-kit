@@ -2,6 +2,8 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
+  NotFoundException,
   RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ import { User } from 'src/modules/user/user.entity';
 import { ActiveUserType } from 'src/interfaces/active-user-type.interface';
 import { HashingProvider } from './provider/hashing.provider';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -58,12 +61,25 @@ export class AuthService {
 
       const allTokens = await this.getToken(user);
 
-      return {
-        ...allTokens,
-        success: true,
-        status: 200,
-        message: 'User logged in successfully.',
-      };
+      const setRefresh = await this.userService.updateRefresh(
+        user.id,
+        allTokens?.refresh as string,
+      );
+
+      if (setRefresh) {
+        return {
+          ...allTokens,
+          success: true,
+          status: 200,
+          message: 'User logged in successfully.',
+        };
+      } else {
+        return {
+          success: false,
+          message: `Something Wrong, Try again.`,
+          status: 400,
+        };
+      }
     } catch (error) {
       if (error instanceof Error) {
         throw new RequestTimeoutException(
@@ -84,7 +100,22 @@ export class AuthService {
   }
 
   public async refreshToken(refreshTokenDto: RefreshTokenDto) {
+    const userData = (
+      await this.userService.findUser(
+        { refresh: refreshTokenDto.refresh },
+        true,
+      )
+    ).data;
+
     try {
+      if (!userData) {
+        return {
+          success: false,
+          status: 400,
+          message: 'Refresh token invalid!',
+        };
+      }
+
       const payload = await this.jwtService.verifyAsync<{ sub: number }>(
         refreshTokenDto.refresh,
         {
@@ -116,10 +147,17 @@ export class AuthService {
         message: 'User access token refresh successfully.',
       };
     } catch (error) {
-      throw new UnauthorizedException(
-        error,
-        'Invalid or expired refresh token.',
-      );
+      if (error instanceof QueryFailedError) {
+        if (error.driverError.errno == 1062) {
+          throw new QueryFailedError('Duplicate Key Error', [], error);
+        }
+        throw new QueryFailedError(error.message, [], error);
+      } else if (error instanceof UnauthorizedException) {
+        if (userData) await this.userService.updateRefresh(userData.id, null);
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException(error.message);
+      }
     }
   }
 

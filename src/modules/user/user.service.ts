@@ -179,4 +179,30 @@ export class UserService {
       }
     }
   }
+
+  public async updateRefresh(id: number, refreshToken: string | null) {
+    try {
+      const refreshTokenUpdate = await this.userRepository.update(id, {
+        refresh: refreshToken,
+      });
+
+      return refreshTokenUpdate;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new RequestTimeoutException(
+          'An error occurred. Please try again.',
+          {
+            description: `Couldn't connect to the database! Error: ${error.message}`,
+          },
+        );
+      } else {
+        throw new RequestTimeoutException(
+          'An unknown error occurred. Please try again.',
+          {
+            description: "Couldn't connect to the database!",
+          },
+        );
+      }
+    }
+  }
 }
