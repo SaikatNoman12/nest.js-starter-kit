@@ -49,14 +49,14 @@ export class UserService {
         throw new RequestTimeoutException(
           'An error occurred. Please try again.',
           {
-            description: `Couldn't connect to the database! Error: ${error.message}`,
+            description: `Couldn't connect to the database. Error: ${error.message}.`,
           },
         );
       } else {
         throw new RequestTimeoutException(
           'An unknown error occurred. Please try again.',
           {
-            description: "Couldn't connect to the database!",
+            description: "Couldn't connect to the database.",
           },
         );
       }
@@ -82,7 +82,7 @@ export class UserService {
 
   public async create(
     userDto: CreateUserDto,
-  ): Promise<PaginatedDetailsInterface<User>> {
+  ): Promise<PaginatedDetailsInterface<GetUserDto>> {
     const user = await this.userRepository.findOne({
       where: { email: userDto.email },
     });
@@ -98,14 +98,16 @@ export class UserService {
 
     newUser = await this.userRepository.save(newUser);
 
-    const response = await this.paginationProvider.paginateDetailsQuery({
-      message: 'User created successfully.',
-      repository: this.userRepository,
-      where: { id: newUser.id },
-      relations: null,
-      select: ['id', 'name', 'email'],
-      isCreate: true,
-    });
+    const response = this.paginationProvider.paginatedDetailsReturn<GetUserDto>(
+      {
+        data: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+        },
+        message: 'User created',
+      },
+    );
 
     return response;
   }
@@ -113,7 +115,7 @@ export class UserService {
   public async update(
     userUpdateDto: UpdateUserDto,
     id: number,
-  ): Promise<PaginatedDetailsInterface<User>> {
+  ): Promise<PaginatedDetailsInterface<GetUserDto>> {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
@@ -135,7 +137,7 @@ export class UserService {
           {
             return {
               status: 409,
-              message: 'This user with email already exists!',
+              message: 'This user with email already exists.',
               success: false,
             };
           }
@@ -150,15 +152,17 @@ export class UserService {
         );
       }
 
-      await this.userRepository.save(user);
+      const savedData = await this.userRepository.save(user);
 
-      const response = await this.paginationProvider.paginateDetailsQuery({
-        message: 'User updated',
-        repository: this.userRepository,
-        where: { id },
-        select: ['id', 'name', 'email'],
-        isCreate: true,
-      });
+      const response =
+        this.paginationProvider.paginatedDetailsReturn<GetUserDto>({
+          data: {
+            id: savedData.id,
+            name: savedData.name,
+            email: savedData.email,
+          },
+          message: 'User updated',
+        });
 
       return response;
     } catch (error) {
@@ -166,14 +170,14 @@ export class UserService {
         throw new RequestTimeoutException(
           'An error occurred. Please try again.',
           {
-            description: `Couldn't connect to the database! Error: ${error.message}`,
+            description: `Couldn't connect to the database. Error: ${error.message}.`,
           },
         );
       } else {
         throw new RequestTimeoutException(
           'An unknown error occurred. Please try again.',
           {
-            description: "Couldn't connect to the database!",
+            description: "Couldn't connect to the database.",
           },
         );
       }
@@ -192,14 +196,14 @@ export class UserService {
         throw new RequestTimeoutException(
           'An error occurred. Please try again.',
           {
-            description: `Couldn't connect to the database! Error: ${error.message}`,
+            description: `Couldn't connect to the database. Error: ${error.message}`,
           },
         );
       } else {
         throw new RequestTimeoutException(
           'An unknown error occurred. Please try again.',
           {
-            description: "Couldn't connect to the database!",
+            description: "Couldn't connect to the database.",
           },
         );
       }

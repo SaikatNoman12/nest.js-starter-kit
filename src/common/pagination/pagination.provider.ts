@@ -119,7 +119,7 @@ export class PaginationProvider<T extends ObjectLiteral> {
         data: null,
         status: HttpStatus.NOT_FOUND,
         success: false,
-        message: `This ${message.toLowerCase()} not found!`,
+        message: `This ${message.toLowerCase()} not found.`,
       };
     }
 
@@ -128,6 +128,25 @@ export class PaginationProvider<T extends ObjectLiteral> {
       success: true,
       message: `${isCreate ? `${message}` : 'This' + message.toLowerCase()} successfully.`,
       status: HttpStatus.OK,
+    };
+
+    return response;
+  }
+
+  public paginatedDetailsReturn<T>({
+    data,
+    message = 'data',
+    status = HttpStatus.OK,
+  }: {
+    data: T;
+    message: string;
+    status?: number;
+  }): PaginatedDetailsInterface<T> {
+    const response: PaginatedDetailsInterface<T> = {
+      data,
+      status,
+      success: true,
+      message: `This ${message.toLowerCase()} successfully.`,
     };
 
     return response;
