@@ -99,7 +99,7 @@ export class UserService {
     newUser = await this.userRepository.save(newUser);
 
     const response = await this.paginationProvider.paginateDetailsQuery({
-      message: 'User created',
+      message: 'User created successfully.',
       repository: this.userRepository,
       where: { id: newUser.id },
       relations: null,

@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthDto } from './dto/auth.dto';
-import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import authConfig from './config/auth.config';
 import { ConfigType } from '@nestjs/config';
@@ -18,6 +17,7 @@ import { ActiveUserType } from 'src/interfaces/active-user-type.interface';
 import { HashingProvider } from './provider/hashing.provider';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { QueryFailedError } from 'typeorm';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +32,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  public async login(loginDto: AuthDto) {
+  public async login(loginDto: AuthDto): Promise<LoginResponseDto> {
     try {
       const user = (
         await this.userService.findUser({ email: loginDto.email }, true)
@@ -41,9 +41,9 @@ export class AuthService {
       if (!user) {
         return {
           success: false,
-          message: 'Email is not valid!',
+          message: 'Email is not valid.',
           status: 400,
-        };
+        } as LoginResponseDto;
       }
 
       const isValidPassword = await this.hashProvider.comparePassword(
@@ -54,11 +54,10 @@ export class AuthService {
       if (!isValidPassword) {
         return {
           success: false,
-          message: 'Password is not matched!',
+          message: 'Password is not matched.',
           status: 400,
-        };
+        } as LoginResponseDto;
       }
-
       const allTokens = await this.getToken(user);
 
       const setRefresh = await this.userService.updateRefresh(
@@ -72,34 +71,36 @@ export class AuthService {
           success: true,
           status: 200,
           message: 'User logged in successfully.',
-        };
+        } as LoginResponseDto;
       } else {
         return {
           success: false,
-          message: `Something Wrong, Try again.`,
+          message: 'Something wrong. Please try again.',
           status: 400,
-        };
+        } as LoginResponseDto;
       }
     } catch (error) {
       if (error instanceof Error) {
         throw new RequestTimeoutException(
           'An error occurred. Please try again.',
           {
-            description: `Couldn't connect to the database! Error: ${error.message}`,
+            description: `Couldn't connect to the database. Error: ${error.message}.`,
           },
         );
       } else {
         throw new RequestTimeoutException(
           'An unknown error occurred. Please try again.',
           {
-            description: "Couldn't connect to the database!",
+            description: "Couldn't connect to the database.",
           },
         );
       }
     }
   }
 
-  public async refreshToken(refreshTokenDto: RefreshTokenDto) {
+  public async refreshToken(
+    refreshTokenDto: RefreshTokenDto,
+  ): Promise<LoginResponseDto> {
     const userData = (
       await this.userService.findUser(
         { refresh: refreshTokenDto.refresh },
@@ -112,8 +113,8 @@ export class AuthService {
         return {
           success: false,
           status: 400,
-          message: 'Refresh token invalid!',
-        };
+          message: 'Refresh token invalid.',
+        } as LoginResponseDto;
       }
 
       const payload = await this.jwtService.verifyAsync<{ sub: number }>(
@@ -128,7 +129,7 @@ export class AuthService {
       const userId = payload.sub;
 
       if (!userId) {
-        throw new UnauthorizedException('Invalid refresh token dto!');
+        throw new UnauthorizedException('Invalid refresh token dto.');
       }
 
       const user = (await this.userService.findUser({ id: userId })).data;
@@ -145,7 +146,7 @@ export class AuthService {
         success: true,
         status: 200,
         message: 'User access token refresh successfully.',
-      };
+      } as LoginResponseDto;
     } catch (error) {
       if (error instanceof QueryFailedError) {
         if (error.driverError.errno == 1062) {
@@ -161,18 +162,14 @@ export class AuthService {
     }
   }
 
-  public async signUp(userDto: CreateUserDto) {
-    return this.userService.create(userDto);
-  }
-
-  public async logout(id: number) {
+  public async logout(id: number): Promise<LoginResponseDto> {
     try {
       if (id) await this.userService.updateRefresh(id, null);
       return {
         success: true,
         message: `Successfully logout`,
         status: 200,
-      };
+      } as LoginResponseDto;
     } catch (error) {
       if (error instanceof QueryFailedError) {
         if (error.driverError.errno == 1062) {
@@ -185,6 +182,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * This is for generate token and get token.
+   * signToken() for generate token.
+   * getToken() for get token.
+   */
   public async signToken<T>(userId: number, expiresIn: number, payload?: T) {
     return await this.jwtService.signAsync(
       {
@@ -200,7 +202,10 @@ export class AuthService {
     );
   }
 
-  public async getToken(user: User, isRefreshToken: boolean = true) {
+  public async getToken(
+    user: User,
+    isRefreshToken: boolean = true,
+  ): Promise<LoginResponseDto> {
     const accessPayload: Partial<ActiveUserType> = {
       email: user.email,
     };
@@ -223,6 +228,6 @@ export class AuthService {
     return {
       access,
       ...(isRefreshToken && { refresh }),
-    };
+    } as LoginResponseDto;
   }
 }

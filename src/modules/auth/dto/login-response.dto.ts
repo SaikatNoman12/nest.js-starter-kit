@@ -4,7 +4,6 @@ export class LoginResponseDto {
   @ApiProperty({ example: true })
   success: boolean;
 
-  @ApiProperty({ example: 'eyJhbGciOiJIUzI1...' })
   access?: string;
 
   @ApiProperty({ example: 'eyJhbGciOiJIUzI1...' })
