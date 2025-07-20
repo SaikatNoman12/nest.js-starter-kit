@@ -9,7 +9,7 @@ export class LoginResponseDto {
   @ApiProperty({ example: 'eyJhbGciOiJIUzI1...' })
   refresh?: string;
 
-  @ApiProperty({ example: 'Login successful', required: false })
+  @ApiProperty({ example: 'Login successfully.', required: false })
   message?: string;
 
   @ApiProperty({ example: 200, required: false })

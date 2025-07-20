@@ -50,8 +50,8 @@ export class AuthorizeGuard implements CanActivate {
     } catch (error) {
       console.error('Token verification failed:', error);
       throw new UnauthorizedException({
-        message: 'Invalid or expired token!',
-        error: 'Unauthorized',
+        message: 'Invalid or expired token.',
+        error: 'Unauthorized.',
         statusCode: 401,
       });
     }
