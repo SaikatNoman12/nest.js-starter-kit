@@ -7,11 +7,11 @@ export class GetUserDto {
   @IsNotEmpty()
   id: number;
 
-  @ApiProperty({ example: 'Abdullah Al Nomaan' })
+  @ApiProperty({ example: 'Admin' })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'xyz@gmail.com' })
+  @ApiProperty({ example: 'admin@gmail.com' })
   @IsString()
   @IsNotEmpty()
   email: string;
