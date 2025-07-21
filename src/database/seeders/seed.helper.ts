@@ -11,4 +11,4 @@ async function runSeeder() {
 
   await seedUserData(dataSource, hashProvider);
 }
-runSeeder();
+void runSeeder();
