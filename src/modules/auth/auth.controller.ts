@@ -17,6 +17,10 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ActiveUser } from './decorators/active-user.decorator';
 import { RemoveToken } from 'src/shared/interceptors/remove-token.interceptor';
 import { ApiTags } from '@nestjs/swagger';
+import { GetUserDto } from '../user/dto/get-user.dto';
+import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
+// import { GetUserDto } from '../user/dto/get-user.dto';
+// import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -30,6 +34,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() authDto: AuthDto): Promise<LoginResponseDto> {
     return this.authService.login(authDto);
+  }
+
+  @Get('check-login')
+  @ApiResponseDto(GetUserDto, false)
+  @HttpCode(HttpStatus.OK)
+  checkLogin(
+    @ActiveUser('sub') userId: number,
+  ): Promise<PaginatedDetailsInterface<GetUserDto>> {
+    return this.authService.getUserInformation(userId);
   }
 
   @Post('refresh-token')

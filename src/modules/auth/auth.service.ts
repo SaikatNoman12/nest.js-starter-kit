@@ -18,6 +18,8 @@ import { HashingProvider } from './provider/hashing.provider';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { QueryFailedError } from 'typeorm';
 import { LoginResponseDto } from './dto/login-response.dto';
+import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
+import { GetUserDto } from '../user/dto/get-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -96,6 +98,14 @@ export class AuthService {
         );
       }
     }
+  }
+
+  public async getUserInformation(
+    id: number,
+  ): Promise<PaginatedDetailsInterface<GetUserDto>> {
+    const user = await this.userService.findUser({ id: id }, false);
+
+    return user;
   }
 
   public async refreshToken(

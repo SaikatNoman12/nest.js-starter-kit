@@ -28,7 +28,9 @@ export class UserController {
   @Get('get-user/:id')
   @ApiOperation({ summary: 'Get single user.' })
   @ApiSingleResponseDto(GetUserDto, true)
-  findOne(@Param('id') id: number) {
+  findOne(
+    @Param('id') id: number,
+  ): Promise<PaginatedDetailsInterface<GetUserDto>> {
     return this.userService.findUser({ id });
   }
 
