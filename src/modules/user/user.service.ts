@@ -73,8 +73,8 @@ export class UserService {
       where: { ...keyValue },
       relations: null,
       select: isAll
-        ? ['id', 'name', 'email', 'password']
-        : ['id', 'name', 'email'],
+        ? ['id', 'name', 'email', 'password', 'role']
+        : ['id', 'name', 'email', 'role'],
     });
 
     return response;

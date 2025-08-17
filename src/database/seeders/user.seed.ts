@@ -1,5 +1,6 @@
 import { HashingProvider } from 'src/modules/auth/provider/hashing.provider';
 import { User } from 'src/modules/user/user.entity';
+import { RolesEnum } from 'src/shared/enums/role.enums';
 import { DataSource } from 'typeorm';
 
 export async function seedUserData(
@@ -20,6 +21,7 @@ export async function seedUserData(
       name: 'Admin',
       email: 'admin@gmail.com',
       password: hashedAdminPassword,
+      role: RolesEnum.ADMIN,
     });
   }
 }

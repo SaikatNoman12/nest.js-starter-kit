@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import authConfig from '../config/auth.config';
+import authConfig from '../../modules/auth/config/auth.config';
 import { ConfigType } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { REQUEST_USER_KEY } from 'src/constants/constants';
+import { IS_PUBLIC_KEY, REQUEST_USER_KEY } from 'src/constants/constants';
 import { Request } from 'express';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class AuthorizeGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride('isPublic', [
+    const isPublic = this.reflector.getAllAndOverride(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);

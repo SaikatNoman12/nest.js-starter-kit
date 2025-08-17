@@ -1,3 +1,4 @@
+import { RolesEnum } from 'src/shared/enums/role.enums';
 import {
   Column,
   CreateDateColumn,
@@ -38,6 +39,13 @@ export class User {
     type: 'text',
   })
   refresh: string | null;
+
+  @Column({
+    type: 'enum',
+    enum: RolesEnum,
+    default: RolesEnum.USER,
+  })
+  role: RolesEnum;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -9,6 +17,9 @@ import { GetUserDto } from './dto/get-user.dto';
 import { ApiSingleResponseDto } from 'src/shared/decorators/api-single-response.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { RolesEnum } from 'src/shared/enums/role.enums';
+import { SetMetaRoles } from 'src/shared/decorators/set-roles.decorator';
 
 @Controller('user')
 @ApiTags('User')
@@ -18,6 +29,8 @@ export class UserController {
 
   @Get('get-users')
   @ApiOperation({ summary: 'Get list of users.' })
+  @SetMetaRoles(RolesEnum.USER, RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @ApiResponseDto(GetUserDto, true, true)
   findAll(
     @Query() paginationDto: PaginationDto,

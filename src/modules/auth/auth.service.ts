@@ -60,6 +60,7 @@ export class AuthService {
           status: 400,
         } as LoginResponseDto;
       }
+
       const allTokens = await this.getToken(user);
 
       const setRefresh = await this.userService.updateRefresh(
@@ -218,6 +219,7 @@ export class AuthService {
   ): Promise<LoginResponseDto> {
     const accessPayload: Partial<ActiveUserType> = {
       email: user.email,
+      role: user.role,
     };
 
     const accessTokenPromise = this.signToken<Partial<ActiveUserType>>(

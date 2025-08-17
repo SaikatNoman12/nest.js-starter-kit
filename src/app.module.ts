@@ -9,7 +9,7 @@ import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 import envValidator from './config/env.validation';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthorizeGuard } from './modules/auth/guards/authorize.guard';
+import { AuthorizeGuard } from './shared/guards/authorize.guard';
 import authConfig from './modules/auth/config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
 import { CorsMiddleware } from './shared/middleware/cors.middleware';
