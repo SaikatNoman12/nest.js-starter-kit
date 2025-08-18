@@ -10,4 +10,7 @@ export default registerAs('auth', () => ({
   ),
   audience: process.env.JWT_TOKEN_AUDIENCE,
   issuer: process.env.JWT_TOKEN_ISSUER,
+  googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+  googleClientUrl: process.env.GOOGLE_CALLBACK_URL ?? '',
 }));

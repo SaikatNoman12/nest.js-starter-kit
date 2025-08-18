@@ -5,6 +5,8 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -16,11 +18,10 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ActiveUser } from './decorators/active-user.decorator';
 import { RemoveToken } from 'src/shared/interceptors/remove-token.interceptor';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUserDto } from '../user/dto/get-user.dto';
 import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
-// import { GetUserDto } from '../user/dto/get-user.dto';
-// import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
+import { GoogleAuthGuard } from 'src/shared/guards/google-auth.guard';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -60,5 +61,40 @@ export class AuthController {
   @UseInterceptors(RemoveToken)
   async logout(@ActiveUser('sub') userId: number): Promise<LoginResponseDto> {
     return await this.authService.logout(userId);
+  }
+
+  // google login
+  @Get('google/login')
+  @ApiOperation({
+    summary: 'Google login.',
+    description: 'Initiates the Google login process via OAuth.',
+  })
+  @AllowAnonymous()
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin() {}
+
+  @Get('google/callback')
+  @ApiOperation({
+    summary: 'Google login callback.',
+    description:
+      'Handles the callback from Google login and processes user data.',
+  })
+  @AllowAnonymous()
+  @UseGuards(GoogleAuthGuard)
+  @UseInterceptors(SetToken)
+  @ApiResponseDto(LoginResponseDto, false)
+  @HttpCode(HttpStatus.OK)
+  googleLoginCallback(@Req() req) {
+    try {
+      const { email, provider, password } = req.user;
+
+      return this.authService.login({
+        email,
+        provider,
+        password,
+      });
+    } catch (error) {
+      this.authService.handleLoginError(error);
+    }
   }
 }

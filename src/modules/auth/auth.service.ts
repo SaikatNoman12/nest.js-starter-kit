@@ -20,6 +20,7 @@ import { QueryFailedError } from 'typeorm';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { PaginatedDetailsInterface } from 'src/common/pagination/paginated';
 import { GetUserDto } from '../user/dto/get-user.dto';
+import { ProvidersEnum } from 'src/shared/enums/provider.enums';
 
 @Injectable()
 export class AuthService {
@@ -48,17 +49,19 @@ export class AuthService {
         } as LoginResponseDto;
       }
 
-      const isValidPassword = await this.hashProvider.comparePassword(
-        loginDto.password,
-        user?.password,
-      );
+      if (loginDto.provider === ProvidersEnum.LOCAL) {
+        const isValidPassword = await this.hashProvider.comparePassword(
+          loginDto.password,
+          user?.password,
+        );
 
-      if (!isValidPassword) {
-        return {
-          success: false,
-          message: 'Password is not matched.',
-          status: 400,
-        } as LoginResponseDto;
+        if (!isValidPassword) {
+          return {
+            success: false,
+            message: 'Password is not matched.',
+            status: 400,
+          } as LoginResponseDto;
+        }
       }
 
       const allTokens = await this.getToken(user);
@@ -241,5 +244,20 @@ export class AuthService {
       access,
       ...(isRefreshToken && { refresh }),
     } as LoginResponseDto;
+  }
+
+  /**
+   * This is for error handle
+   * handleLoginError()
+   */
+  public handleLoginError(error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? `Couldn't connect to the database. Error: ${error.message}`
+        : "Couldn't connect to the database.";
+
+    throw new RequestTimeoutException('An error occurred. Please try again.', {
+      description: errorMessage,
+    });
   }
 }

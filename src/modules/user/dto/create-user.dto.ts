@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmpty, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsEmpty,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { ProvidersEnum } from 'src/shared/enums/provider.enums';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'Abdullah Al Nomaan' })
@@ -14,11 +22,16 @@ export class CreateUserDto {
 
   @ApiProperty({ example: 'Admin123@' })
   @IsString()
-  @IsNotEmpty()
   password: string;
 
   @IsOptional()
   @IsString()
   @IsEmpty()
   refresh?: string;
+
+  @ApiProperty({ enum: ProvidersEnum, example: ProvidersEnum.LOCAL })
+  @IsEnum(ProvidersEnum)
+  @IsOptional()
+  @Transform(({ value }) => (value ? value : ProvidersEnum.LOCAL))
+  provider: ProvidersEnum;
 }

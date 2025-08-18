@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -19,6 +20,7 @@ import { HashingProvider } from 'src/modules/auth/provider/hashing.provider';
 import { GetUserDto } from './dto/get-user.dto';
 import { DynamicKeyInterFace } from 'src/interfaces/reuse';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ProvidersEnum } from 'src/shared/enums/provider.enums';
 
 @Injectable()
 export class UserService {
@@ -89,6 +91,10 @@ export class UserService {
 
     if (user) {
       throw new UserAlreadyExistException('this email', user.email);
+    }
+
+    if (!userDto.password && userDto.provider === ProvidersEnum.LOCAL) {
+      throw new BadRequestException('Empty password not supported.');
     }
 
     let newUser = this.userRepository.create({

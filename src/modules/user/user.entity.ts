@@ -1,3 +1,4 @@
+import { ProvidersEnum } from 'src/shared/enums/provider.enums';
 import { RolesEnum } from 'src/shared/enums/role.enums';
 import {
   Column,
@@ -46,6 +47,13 @@ export class User {
     default: RolesEnum.USER,
   })
   role: RolesEnum;
+
+  @Column({
+    type: 'enum',
+    enum: ProvidersEnum,
+    default: ProvidersEnum.LOCAL,
+  })
+  provider: ProvidersEnum;
 
   @CreateDateColumn()
   createdAt: Date;
