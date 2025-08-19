@@ -27,7 +27,9 @@ export class GoogleController {
   })
   @AllowAnonymous()
   @UseGuards(GoogleAuthGuard)
-  async googleLogin() {}
+  async googleLogin() {
+    console.log('Nomaan');
+  }
 
   @Get('callback')
   @ApiOperation({

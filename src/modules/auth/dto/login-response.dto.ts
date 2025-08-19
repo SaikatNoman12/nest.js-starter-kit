@@ -14,4 +14,7 @@ export class LoginResponseDto {
 
   @ApiProperty({ example: 200, required: false })
   status?: number;
+
+  @ApiProperty({ example: 200, required: false })
+  role?: number;
 }

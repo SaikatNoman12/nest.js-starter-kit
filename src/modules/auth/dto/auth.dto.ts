@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
-  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -16,7 +15,7 @@ export class AuthDto {
   email: string;
 
   @ApiProperty({ example: 'Admin123@' })
-  @IsEmpty()
+  @IsOptional()
   @IsString()
   password: string;
 

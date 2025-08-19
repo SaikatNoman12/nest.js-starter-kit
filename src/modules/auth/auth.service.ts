@@ -74,6 +74,7 @@ export class AuthService {
       if (setRefresh) {
         return {
           ...allTokens,
+          role: user.role,
           success: true,
           status: 200,
           message: 'User logged in successfully.',

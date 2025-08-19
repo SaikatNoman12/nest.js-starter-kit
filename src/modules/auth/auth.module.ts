@@ -1,5 +1,4 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HashingProvider } from './provider/hashing.provider';
 import { BcryptProvider } from './provider/bcrypt.provider';
@@ -11,9 +10,11 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/user.entity';
+import { AuthController } from './controllers/auth.controller';
+import { GoogleController } from './controllers/google.controller';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleController],
   providers: [
     AuthService,
     GoogleStrategy,
