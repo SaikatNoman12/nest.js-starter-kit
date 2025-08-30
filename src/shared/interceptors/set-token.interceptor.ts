@@ -10,6 +10,7 @@ import { ConfigType } from '@nestjs/config';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import authConfig from 'src/modules/auth/config/auth.config';
 import { LoginResponseDto } from 'src/modules/auth/dto/login-response.dto';
+import { ProvidersEnum } from '../enums/provider.enums';
 
 @Injectable()
 export class SetToken implements NestInterceptor {
@@ -26,6 +27,15 @@ export class SetToken implements NestInterceptor {
           res.cookie(this.authConfiguration.authTokenCookieName, value.access, {
             httpOnly: true,
           });
+
+          if (
+            value.provider === ProvidersEnum.GOOGLE ||
+            value.provider === ProvidersEnum.APPLE
+          ) {
+            res.redirect(this.authConfiguration.redirectUrl);
+            return;
+          }
+
           return {
             success: true,
             message: value.message,

@@ -42,6 +42,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           name: displayName,
           email: emails[0].value,
           provider: provider,
+          password: '',
         });
 
         user = await this.userRepository.save(user);

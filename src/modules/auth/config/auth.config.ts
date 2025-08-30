@@ -13,4 +13,5 @@ export default registerAs('auth', () => ({
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
   googleClientUrl: process.env.GOOGLE_CALLBACK_URL ?? '',
+  redirectUrl: process.env.REDIRECT_URL ?? '',
 }));

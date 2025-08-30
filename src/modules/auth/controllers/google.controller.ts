@@ -15,10 +15,12 @@ import { LoginResponseDto } from '../dto/login-response.dto';
 import { ApiResponseDto } from 'src/shared/decorators/api-response.decorator';
 import { AuthService } from '../auth.service';
 
-@Controller('google')
+@Controller('auth/google')
 @ApiTags('Google Auth')
 export class GoogleController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+  ) {}
 
   @Get('login')
   @ApiOperation({
@@ -27,9 +29,7 @@ export class GoogleController {
   })
   @AllowAnonymous()
   @UseGuards(GoogleAuthGuard)
-  async googleLogin() {
-    console.log('Nomaan');
-  }
+  async googleLogin() {}
 
   @Get('callback')
   @ApiOperation({
@@ -42,15 +42,17 @@ export class GoogleController {
   @UseInterceptors(SetToken)
   @ApiResponseDto(LoginResponseDto, false)
   @HttpCode(HttpStatus.OK)
-  googleLoginCallback(@Req() req) {
+  async googleLoginCallback(@Req() req) {
     try {
       const { email, provider, password } = req.user;
 
-      return this.authService.login({
+      const response = await this.authService.login({
         email,
         provider,
         password,
       });
+
+      return response;
     } catch (error) {
       this.authService.handleLoginError(error);
     }

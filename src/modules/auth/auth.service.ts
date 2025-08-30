@@ -78,6 +78,7 @@ export class AuthService {
           success: true,
           status: 200,
           message: 'User logged in successfully.',
+          provider: loginDto.provider,
         } as LoginResponseDto;
       } else {
         return {
